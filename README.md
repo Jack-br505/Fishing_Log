@@ -1,8 +1,8 @@
-# Fieldnotes fishing log
+# StreamNotes fishing log
 
 A Streamlit journal for North American freshwater catches, backed by a Flask API
 and SQLite database. Users can register/sign in, save catches and locations,
-view locations on a map, and track species and species-specific river monsters.
+view their fishing spots on a map, track species and see their trophy catches.
 
 ## Run locally
 

@@ -11,7 +11,7 @@ import streamlit as st
 API_URL = os.environ.get("FISH_API_URL", "http://127.0.0.1:5001/api").rstrip("/")
 
 st.set_page_config(
-    page_title="Fieldnotes — fishing log",
+    page_title="Stream Notes — fishing log",
     page_icon="🎣",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -96,21 +96,21 @@ def page_header(kicker, title, description):
 def login_page():
     left, right = st.columns([1.1, 0.9], gap="large")
     with left:
-        st.markdown('<div class="eyebrow">YOUR WATER, REMEMBERED</div>', unsafe_allow_html=True)
-        st.title("A better kind of fishing log.")
+        st.markdown('<div class="eyebrow">YOUR EXPERIENCE, NOTED</div>', unsafe_allow_html=True)
+        st.title("A Way to Note Every Cast")
         st.markdown(
-            '<p class="hero-note">Keep every cast, new water, and remarkable catch in one place.</p>',
+            '<p class="hero-note">Keep every catch, honey hole, and details in one place.</p>',
             unsafe_allow_html=True,
         )
         st.image(
             "https://images.unsplash.com/photo-1786788684933-89146e442418?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D",
             width="stretch",
         )
-        st.caption("A personal field journal for freshwater anglers.")
+        st.caption("A personal journal for freshwater anglers.")
     with right:
         st.write("")
         st.write("")
-        st.markdown('<div class="eyebrow">WELCOME TO FIELDNOTES</div>', unsafe_allow_html=True)
+        st.markdown('<div class="eyebrow">WELCOME TO STREAM NOTES</div>', unsafe_allow_html=True)
         st.header("Sign in")
         login_tab, register_tab = st.tabs(["Sign in", "Create account"])
         with login_tab:
@@ -177,7 +177,7 @@ def catch_tile(item):
 
 
 def catches_page():
-    page_header("THE LOGBOOK", "Your catches", "A field record of every fish and the water it came from.")
+    page_header("Your Logbook", "Your catches", "A field record of every fish and the water it came from.")
     locations = call_api("/locations")
     catches = call_api("/catches")
     species_catalog = call_api("/species", authenticated=False)
@@ -197,6 +197,8 @@ def catches_page():
     st.write("")
     log_tab, overview_tab = st.tabs(["＋  Log a catch", "Catch overview"])
     with log_tab:
+        location_names = ["＋ Add a new location"] + [item["name"] for item in locations]
+        selected_location = st.selectbox("Location", location_names)
         with st.form("catch_form", clear_on_submit=True):
             st.subheader("Add a catch")
             first, second = st.columns(2)
@@ -209,12 +211,11 @@ def catches_page():
                 )
                 st.caption(f"River monster status starts over {selected_threshold} inches.")
                 catch_date = st.date_input("Date", value=date.today())
-                location_names = ["＋ Add a new location"] + [item["name"] for item in locations]
-                selected_location = st.selectbox("Location", location_names)
                 length = st.number_input("Length (inches)", min_value=0.0, step=0.5, value=None, placeholder="Optional")
             with second:
                 catch_time = st.time_input("Time", value=time(12, 0))
-                gear = st.text_input("Gear used", placeholder="e.g. spinning rod, soft plastic")
+                gear = st.text_input("Gear used", placeholder="Optional e.g. spinning rod, fly rod, etc.")
+                lure = st.text_input("Lure or bait", placeholder="Optional e.g. spinner, worm, etc.")
                 weight = st.number_input("Weight (lbs)", min_value=0.0, step=0.1, value=None, placeholder="Optional")
                 picture = st.file_uploader("Fish photo", type=["jpg", "jpeg", "png", "webp"])
             location_name, latitude, longitude = "", None, None
@@ -222,8 +223,8 @@ def catches_page():
                 st.markdown("**New location details**")
                 name_col, lat_col, lon_col = st.columns(3)
                 location_name = name_col.text_input("Location name")
-                latitude = lat_col.number_input("Latitude", min_value=-90.0, max_value=90.0, value=42.0, format="%.6f")
-                longitude = lon_col.number_input("Longitude", min_value=-180.0, max_value=180.0, value=-84.0, format="%.6f")
+                latitude = lat_col.number_input("Latitude", label = "North/South", min_value=-90.0, max_value=90.0, value=42.0, format="%.6f")
+                longitude = lon_col.number_input("Longitude", label = "East/West", min_value=-180.0, max_value=180.0, value=-84.0, format="%.6f")
             submitted = st.form_submit_button("Save catch", type="primary")
         if submitted:
             photo_data = None
@@ -240,6 +241,7 @@ def catches_page():
                 "date": catch_date.isoformat(),
                 "time": catch_time.isoformat(timespec="minutes"),
                 "gear": gear,
+                "lure": lure,
                 "length_inches": length or None,
                 "weight_lbs": weight or None,
                 "picture": photo_data,
@@ -268,7 +270,7 @@ def catches_page():
 
 
 def locations_page():
-    page_header("PLACES WORTH RETURNING TO", "Your locations", "Every pin marks a place with a story.")
+    page_header("Honey Holes", "Your locations", "Map the places you fish and the whats in them")
     locations = call_api("/locations")
     if locations is None:
         return
@@ -330,7 +332,7 @@ def locations_page():
 
 
 def monsters_page():
-    page_header("THE ONES THAT GOT AWAY? NOT THIS TIME.", "River monsters", "Your catches that cleared their species' size threshold.")
+    page_header("Your Trophy Case", "River monsters", "The catches that cleared their species' size threshold.")
     catches = call_api("/catches")
     if catches is None:
         return

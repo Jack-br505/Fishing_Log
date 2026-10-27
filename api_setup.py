@@ -34,7 +34,7 @@ SPECIES_THRESHOLDS = {
     "Longnose Gar": 32,
     "Longnose Sucker": 17,
     "Muskellunge": 46,
-    "Northern Pike": 46,
+    "Northern Pike": 36,
     "Rainbow Trout": 24,
     "Rock Bass": 12,
     "Smallmouth Bass": 21,
